@@ -1,10 +1,10 @@
 import re
 import os
-import sys
 import plistlib
 import prettytable
 import subprocess
-from colorama import Fore, Back, Style
+from colorama import Fore
+import argparse
 
 
 def red(s):
@@ -32,6 +32,7 @@ def output(out):
     print(tb)
 
 def parse_plist(path):
+    print(path)
     if not os.path.isfile(path):
         return None
     with open(path, 'rb') as f:
@@ -80,7 +81,8 @@ def get_clean_folders():
         '/Library/StagedExtensions/Library/Extensions',
         '/Library/StagedExtensions/Library/Application Support',
         '/Library/Extensions/',
-        '~'
+        '~',
+        '~/.config/'
     ]
     for folder1 in os.listdir('/var/folders/'):
         folder1_path = os.path.join('/var/folders/', folder1)
@@ -96,15 +98,18 @@ def find_folders(name):
     real_clean_folders = []
     id_ = 0
     for folder in get_clean_folders():
-        for f in os.listdir(folder):
-            if f.startswith('com.apple'):
-                continue
-            f_word = ''.join(re.findall('[a-zA-Z0-9.]', f)).lower()
-            if len([x for x in name if ''.join(re.findall('[a-zA-Z0-9.]', x)).lower() in f_word]):
-                path = os.path.join(folder, f)
-                size = size_human(int(get_size(path)))
-                real_clean_folders.append([path, red(str(id_)), yellow(path), green(size)])
-                id_ += 1
+        try:
+            for f in os.listdir(folder):
+                if f.startswith('com.apple'):
+                    continue
+                f_word = ''.join(re.findall('[a-zA-Z0-9.]', f)).lower()
+                if len([x for x in name if ''.join(re.findall('[a-zA-Z0-9.]', x)).lower() in f_word]):
+                    path = os.path.join(folder, f)
+                    size = size_human(int(get_size(path)))
+                    real_clean_folders.append([path, red(str(id_)), yellow(path), green(size)])
+                    id_ += 1
+        except FileNotFoundError:
+            pass
     return real_clean_folders
 
 def rm_rf(path):
@@ -113,20 +118,19 @@ def rm_rf(path):
     return stderr.decode('utf-8')
 
 def main():
-    usage = 'usage: python3 {script} name'.format(script=sys.argv[0])
-    if len(sys.argv) < 2:
-        print(usage)
-        exit()
-    path = '/Applications/{app}/Contents/Info.plist'.format(app=sys.argv[1])
+    parser = argparse.ArgumentParser(description='A tool for uninstalling macos third-party software.')
+    parser.add_argument('p', metavar='xxx.app', help='Software,e.g.: Docker.app、\'"PlistEdit pro.app"\'. Or keyword, e.g.: Docker')
+    args = parser.parse_args()
+    path = '/Applications/{app}/Contents/Info.plist'.format(app=args.p)
     name = []
     deleted_folders = []
     flag = parse_plist(path)
     if flag:
-        print(green('[+]Searches app Info.plist successfully'))
+        print(green('[+]Searches [{}] Info.plist successfully'.format(args.p)))
         name = flag
     else:
         print(yellow('[*]Searches app Info.plist failed, native input will be used'))
-        name.append(sys.argv[1])
+        name.append(args.p)
     folders = find_folders(name)
     if len(folders):
         print(green('[+]Found the following results:'))

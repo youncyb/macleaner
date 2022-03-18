@@ -1,9 +1,8 @@
 ## 📣Introduction
-**Because every time I delete a third-party installed app under Mac, I cannot delete it manually. Therefore, I wrote a small tool to delete app dependencies, configurations, logs, and caches.**
+**Because every time you delete a third-party installed app under Mac, you cannot delete it manually. Therefore, I wrote a small tool to delete app dependencies, configurations, logs, and caches.**
 
 ## ✨Technology
 **According to keywords, traverse the following folders**
-
 ```
 '~/Library/Application Support',
 '~/Library/Preferences/',
@@ -21,7 +20,8 @@
 '/Library/StagedExtensions/Library/Extensions',
 '/Library/StagedExtensions/Library/Application Support',
 '/Library/Extensions/',
-'~'
+'~',
+'~/.config/'
 ```
 
 ## 🔰Install
@@ -48,7 +48,6 @@ drwxr-xr-x@  3 root     wheel    96  2 23  2019 Launchpad.app
 ......
 ```
 **Then input command: `maclean ShadowsocksX-NG.app`**
-
 ```
  $ maclean ShadowsocksX-NG.app                              
 [+]Searches app Info.plist successfully

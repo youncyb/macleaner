@@ -1,3 +1,2 @@
 #!/bin/bash
-sudo python3 $(pwd)/clean.py $@
-
+sudo python3 ${MACLEAN_PATH}/clean.py "$*"
